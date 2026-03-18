@@ -86,9 +86,6 @@ class Player:
         else:
             self.action = "stand" #無任何事件時 動作為"stand"
 
-
-    
-
 #Slime類別
 class Slime:
     def __init__(self, x, y, action):
