@@ -125,7 +125,3 @@ if __name__ == "__main__":
     pygame.display.flip()  # 畫面更新
     time.sleep(0.5)
     pygame.quit()
-
-"git test"
-
-"git test2"
