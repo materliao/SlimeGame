@@ -67,5 +67,3 @@
 
 ---
 **開發者**: 廖翊安 (Liao Yi-an) - 長億高中程式設計研究社 創辦人
-
-Would you like me to **add a section on how to extend the stages** (e.g., adding a Boss stage) to this README?
