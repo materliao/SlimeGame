@@ -44,7 +44,7 @@ def image_display():
     screen.blit(wood_resource_text,(((81 + 81 + 243)/2)+55+2,9))
     
     screen.blit(hp_value_image[player.hp-1],(410+350,9))#經驗值
-    screen.blit(ex_value_image[ex_value],(410,9))#HP值
+    screen.blit(ex_value_image[player.ex_value],(410,9))#HP值
 
     #選單按鈕顯示
     #獵人
@@ -80,40 +80,40 @@ if __name__ == "__main__":
                 stage_result = stage1(player)
                 if stage_result == "stage1_finish":stage += 1 #結束第一關
                 elif stage_result == "ex_value_plus": #增加經驗值
-                    ex_value = min(ex_value + 1, len(ex_value_image)-1)
+                    player.ex_value = min(player.ex_value + 1, len(ex_value_image)-1)
             case 2: #第二關
                 stage_result = stage2(player)
                 if stage_result == "stage2_finish":stage += 1 #結束第二關
                 elif stage_result == "ex_value_plus": #增加經驗值
-                    ex_value = min(ex_value + 1, len(ex_value_image)-1)
+                    player.ex_value = min(player.ex_value + 1, len(ex_value_image)-1)
                 elif stage_result == "hp_value_minus": #減少生命值
                     player.hp -= 1
             case 3: #第三關
                 stage_result = stage3(player)
                 if stage_result == "stage3_finish":stage += 1 #結束第三關
                 elif stage_result == "ex_value_plus": #增加經驗值
-                    ex_value = min(ex_value + 1, len(ex_value_image)-1)
+                    player.ex_value = min(player.ex_value + 1, len(ex_value_image)-1)
                 elif stage_result == "hp_value_minus": #減少生命值
                     player.hp -= 1
             case 4: #第四關
                 stage_result = stage4(player)
                 if stage_result == "stage4_finish":stage += 1 #結束第四關
                 elif stage_result == "ex_value_plus": #增加經驗值
-                    ex_value = min(ex_value + 1, len(ex_value_image)-1)
+                    player.ex_value = min(player.ex_value + 1, len(ex_value_image)-1)
                 elif stage_result == "hp_value_minus": #減少生命值
                     player.hp -= 1
             case 5: #第五關
                 stage_result = stage5(player)
                 if stage_result == "stage5_finish":stage += 1 #結束第五關
                 elif stage_result == "ex_value_plus": #增加經驗值
-                    ex_value = min(ex_value + 1, len(ex_value_image)-1)
+                    player.ex_value = min(player.ex_value + 1, len(ex_value_image)-1)
                 elif stage_result == "hp_value_minus": #減少生命值
                     player.hp -= 1
             case 6: #第六關
                 stage_result = stage6(player)
                 if stage_result == "stage6_finish":stage += 1 #結束第六關
                 elif stage_result == "ex_value_plus": #增加經驗值
-                    ex_value = min(ex_value + 1, len(ex_value_image)-1)
+                    player.ex_value = min(player.ex_value + 1, len(ex_value_image)-1)
                 elif stage_result == "hp_value_minus": #減少生命值
                     player.hp -= 1
         pygame.display.flip()  # 畫面更新
