@@ -13,7 +13,9 @@ class Player:
 
         # player 的其他屬性設置
         self.hp = hp_value
+        self.ex_value = 0
         self.click_last_time = time.time() #player操作間隔時間計算
+        
 
         # 加載stand和attack和run的圖片
         self.stand_images = [pygame.image.load(os.path.join(folder_path+"\\assets\\image\\", "player_stand.png"))]
