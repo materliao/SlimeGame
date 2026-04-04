@@ -18,6 +18,9 @@ clock = pygame.time.Clock()#幀數計算
 def image_display():
     screen.fill((0,0,0))#畫面清空
 
+    #背景色塊顯示 RGB(190,234,208)
+    pygame.draw.rect(screen,(190,234,208),(81+81-10,72-10,1280,720))
+
     #道路顯示
     screen.blit(Road_image, (81 + 81 + 243, 72 + 27))  #道路1
     screen.blit(Road_image, (81 + 81 + 162, 72 + 27 + 108 + 135))  #道路2
