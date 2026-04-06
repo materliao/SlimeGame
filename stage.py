@@ -263,7 +263,7 @@ def stage6(player):
         player.update()
         if stage6_score<10:
             stage_run_time = time.time()
-            if time.time() - dragon_last_call > 5:
+            if time.time() - dragon_last_call > 3:
                 dragon_last_call = time.time()
                 for i in range(random.randint(1, 3)):
                     if random.randint(0, 1) == 0:
@@ -314,4 +314,4 @@ def stage6(player):
             enemies.clear()
             stage_start = False
             return "stage6_finish" #結束Stage
-
+        

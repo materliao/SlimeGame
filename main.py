@@ -61,7 +61,8 @@ stage_start = False #預設關卡未開始
 
 #主程式
 if __name__ == "__main__":
-    print("遊戲開始")
+    print("Game Start")
+    
     while running and player.hp > 0:
         for event in pygame.event.get():#pygame事件輸入
             if event.type == QUIT: 
@@ -69,6 +70,10 @@ if __name__ == "__main__":
             #滑鼠點擊事件
             elif event.type == MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
+                
+                
+                if HunterButton_image_rect.collidepoint(mouse_pos): #點擊獵人按鈕
+                    print("hunter button clicked")
 
         image_display()#背景圖片顯示
 
