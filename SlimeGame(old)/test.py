@@ -1,0 +1,548 @@
+import pygame, sys,time,random
+from pygame.locals import *
+
+pygame.init()  #初始化pygame
+screen = pygame.display.set_mode((1280, 720))
+pygame.display.set_caption("遊戲")
+
+road_y = [72+27,72+27+108+135,72+27+108+135+108+135]
+
+hunting_level = 0
+logging_level = 0
+
+meat_resource = 0
+wood_resource = 0
+
+#圖片匯入
+if "image_load" == "image_load":
+    #道路 匯入
+    Road_image = pygame.image.load("road.png")
+    Road_image_rect = Road_image.get_rect()
+
+    #森林匯入
+    Forest_image = pygame.image.load("forest.png")
+    Forest_image_rect = Forest_image.get_rect()
+
+    #房子匯入
+    House_image = pygame.image.load("house.png")
+    House_image_rect = House_image.get_rect()
+
+    #空豬圈匯入
+    Pigsty_image = pygame.image.load("pigsty.png")
+    Pigsty_image_rect = Pigsty_image.get_rect()
+
+    #資源圖示匯入
+    meat_resource_image = pygame.image.load("meat_resource_image.png")#肉
+    wood_resource_image = pygame.image.load("wood_resource_image.png")#木頭
+    ex_value_image = [pygame.image.load("ex0.png"),
+                      pygame.image.load("ex1.png"),
+                      pygame.image.load("ex2.png"),
+                      pygame.image.load("ex3.png"),
+                      pygame.image.load("ex4.png"),
+                      pygame.image.load("ex5.png"),
+                      pygame.image.load("ex6.png"),
+                      pygame.image.load("ex7.png"),
+                      pygame.image.load("ex8.png"),
+                      pygame.image.load("ex9.png"),
+                      pygame.image.load("ex10.png"),
+                      pygame.image.load("ex11.png"),
+                      pygame.image.load("ex12.png"),
+                      pygame.image.load("ex13.png"),
+                      pygame.image.load("ex14.png"),
+                      pygame.image.load("ex15.png"),
+                      pygame.image.load("ex16.png"),
+                      pygame.image.load("ex17.png"),
+                      pygame.image.load("ex18.png"),
+                      pygame.image.load("ex19.png"),
+                      pygame.image.load("ex20.png"),
+                      pygame.image.load("ex21.png"),]
+    hp_value_image = [pygame.image.load("hp1.png"),
+                      pygame.image.load("hp2.png"),
+                      pygame.image.load("hp3.png"),
+                      pygame.image.load("hp4.png"),
+                      pygame.image.load("hp5.png"),
+                      pygame.image.load("hp6.png"),
+                      pygame.image.load("hp7.png"),
+                      pygame.image.load("hp8.png"),
+                      pygame.image.load("hp9.png"),
+                      pygame.image.load("hp10.png"),]
+    
+    
+    #選單按鈕匯入
+    #獵人
+    HunterButton_image = pygame.image.load("hunter_button.png")
+    HunterButton_image_rect = HunterButton_image.get_rect()
+    HunterButton_image_rect.topleft = (0,72)
+    
+    #伐木工
+    LoggerButton_image = pygame.image.load("logger_button.png")
+    LoggerButton_image_rect = LoggerButton_image.get_rect()
+    LoggerButton_image_rect.topleft = (81,72)
+
+    #魔法塔
+    TowerButton_image = pygame.image.load("tower_button.png")
+    TowerButton_image_rect = TowerButton_image.get_rect()
+    TowerButton_image_rect.topleft = (0,170)
+
+#Player物件
+class Player:
+    def __init__(self, x, y, action):
+        # player 的位置
+        self.x = x
+        self.y = y
+        
+        # 加載stand和attack和run的圖片
+        self.stand_images = [pygame.image.load("player_stand.png")]
+        self.attack_images = [pygame.image.load("player_attack1.png"), 
+                              pygame.image.load("player_attack2.png")]
+        self.run_images = [pygame.image.load("player_run1.png"),
+                           pygame.image.load("player_run2.png"),
+                           pygame.image.load("player_run3.png"),
+                           pygame.image.load("player_run4.png"),
+                           pygame.image.load("player_run5.png")]
+        
+        # 設定初始圖片與動畫狀態
+        self.current_image = 0
+        self.animation_speed = 0.6  # 控制動畫速度 數字越大更新越快
+        self.action = action  # 預設行為是stand
+        self.image = self.run_images[self.current_image]
+
+    def update(self):
+        # 更新 player 的動畫
+        self.current_image += self.animation_speed
+
+        if self.action == "stand":
+            if self.current_image >= len(self.stand_images):
+                self.current_image = 0
+            self.image = self.stand_images[int(self.current_image)]
+        
+        if self.action == "run":
+            if self.current_image >= len(self.run_images):
+                self.current_image = 0
+            self.image = self.run_images[int(self.current_image)]
+        
+        elif self.action == "attack":
+            if self.current_image >= len(self.attack_images):
+                self.current_image = 0
+            self.image = self.attack_images[int(self.current_image)]
+
+    def draw(self, surface):
+        # 將 player 畫在指定的位置上
+        surface.blit(self.image, (self.x, self.y))
+
+#Slime物件
+class Slime:
+    def __init__(self, x, y, action):
+        # Slime 的位置
+        self.x = x
+        self.y = y
+        
+        # 加載攻擊和奔跑的圖片
+        self.attack_images = [pygame.image.load("slime_attack1.png"), 
+                              pygame.image.load("slime_attack2.png")]
+        self.run_images = [pygame.image.load("slime_run1.png"),
+                           pygame.image.load("slime_run2.png"),
+                           pygame.image.load("slime_run3.png"),
+                           pygame.image.load("slime_run4.png"),
+                           pygame.image.load("slime_run5.png")]
+        
+        # 設定初始圖片與動畫狀態
+        self.current_image = 0
+        self.animation_speed = 0.1  # 控制動畫速度 數字越大更新越快
+        self.action = action  # 預設行為是跑動
+        self.image = self.run_images[self.current_image]
+
+    def update(self):
+        # 更新 Slime 的動畫
+        self.current_image += self.animation_speed
+        if self.action == "run":
+            if self.current_image >= len(self.run_images):
+                self.current_image = 0
+            self.image = self.run_images[int(self.current_image)]
+        elif self.action == "attack":
+            if self.current_image >= len(self.attack_images):
+                self.current_image = 0
+            self.image = self.attack_images[int(self.current_image)]
+
+    def draw(self, surface):
+        # 將 Slime 畫在指定的位置上
+        surface.blit(self.image, (self.x, self.y))
+
+#Dragon物件
+class Dragon:
+    def __init__(self, x, y, action):
+        # Dragon 的位置
+        self.x = x
+        self.y = y
+        self.last_attack_time = None
+        # 加載攻擊和奔跑的圖片
+        self.attack_images = [pygame.image.load("dragon_attack1.png"), 
+                              pygame.image.load("dragon_attack2.png"),
+                              pygame.image.load("dragon_attack3.png")]
+        self.run_images = [pygame.image.load("dragon_run1.png"),
+                           pygame.image.load("dragon_run2.png"),
+                           pygame.image.load("dragon_run3.png"),
+                           pygame.image.load("dragon_run4.png"),]
+        
+        # 設定初始圖片與動畫狀態
+        self.current_image = 0
+        self.animation_speed = 0.15  # 控制動畫速度 數字越大更新越快
+        self.action = action  # 預設行為是跑動
+        self.image = self.run_images[self.current_image]
+
+    def update(self):
+        # 更新 Dragon 的動畫
+        self.current_image += self.animation_speed
+        if self.action == "run":
+            if self.current_image >= len(self.run_images):
+                self.current_image = 0
+            self.image = self.run_images[int(self.current_image)]
+        elif self.action == "attack":
+            if self.current_image >= len(self.attack_images):
+                self.current_image = 0
+            self.image = self.attack_images[int(self.current_image)]
+
+    def draw(self, surface):
+        # 將 Slime 畫在指定的位置上
+        surface.blit(self.image, (self.x, self.y))
+
+#Tower物件
+class Tower:
+    def __init__(self, x, y, action):
+        # Tower 的位置
+        self.x = x
+        self.y = y
+        self.last_attack_time = None
+
+        # 加載常設和攻擊的圖片
+        self.standing_images = [pygame.image.load("tower_standing1.png"),
+                                pygame.image.load("tower_standing2.png"),]
+        self.attack_images = [pygame.image.load("tower_attack1.png"),
+                              pygame.image.load("tower_attack2.png"),
+                              pygame.image.load("tower_attack3.png"),
+                              pygame.image.load("tower_attack2.png"),]
+        
+        # 設定初始圖片與動畫狀態
+        self.current_image = 0
+        self.action = action  # 預設行為是跑動
+        self.image = self.standing_images[self.current_image]
+
+        if self.action == "attack":
+            self.animation_speed = 0.57  # 控制動畫速度 數字越大更新越快
+        elif self.action == "standing":
+            self.animation_speed = 0.07  # 控制動畫速度 數字越大更新越快
+
+
+    def update(self):
+        # 更新 Tower 的動畫
+        self.current_image += self.animation_speed
+        if self.action == "standing":
+            if self.current_image >= len(self.standing_images):
+                self.current_image = 0
+            self.image = self.standing_images[int(self.current_image)]
+        elif self.action == "attack":
+            if self.current_image >= len(self.attack_images):
+                self.current_image = 0
+            self.image = self.attack_images[int(self.current_image)]
+
+    def draw(self, surface):
+        # 將 Slime 畫在指定的位置上
+        surface.blit(self.image, (self.x, self.y-15))
+
+# 創建文字圖像
+font = pygame.font.Font("C:\Windows\Fonts\Bahnschrift.ttf", 64)#設定字型和大小（第二個參數是字型大小） None 代表使用 Pygame 預設字型
+#(文字內容,抗鋸齒效果,顏色)
+meat_resource_text = font.render(f"{meat_resource}", True, (255,255,255))#肉資源文字物件
+wood_resource_text = font.render(f"{wood_resource}", True, (255,255,255))#木頭資源文字物件
+big_text_font = pygame.font.Font("C:\Windows\Fonts\Bahnschrift.ttf", 200)#設定字型_大
+game_start_text = big_text_font.render(f"start",True,(255,255,255))#start文字按鈕物件
+game_start_text_rect = game_start_text.get_rect()
+game_start_text_rect.topleft = (200,260)
+game_over_text = big_text_font.render(f"game over",True,(255,255,255))#over文字按鈕物件
+
+#pigsty1 hunting動畫顯示
+pigsty1_current = 0
+def pigsty1_hunting(hunting_speed):
+    current = 0
+    pigsty_hunting_image = [pygame.image.load("hunter_catching1.png"),
+                            pygame.image.load("hunter_catching2.png"),
+                            pygame.image.load("hunter_catching3.png"),
+                            pygame.image.load("hunter_catching4.png"),
+                            pygame.image.load("hunter_catching5.png"),
+                            pygame.image.load("hunter_catching6.png"),
+                            pygame.image.load("hunter_catching7.png"),
+                            pygame.image.load("hunter_catching8.png"),
+                            pygame.image.load("hunter_catching9.png"),
+                            pygame.image.load("hunter_catching10.png")]
+    if hunting_speed > 0:
+        global pigsty1_current
+        pigsty1_current =pigsty1_current + hunting_speed/5.0
+        if pigsty1_current >= len(pigsty_hunting_image):
+            pigsty1_current = 0
+        screen.blit(pigsty_hunting_image[int(pigsty1_current)],(162,72))    
+    else:
+        screen.blit(pygame.image.load("pigsty.png"),(162,72))
+
+#forest1 logging動畫顯示
+forest1_current = 0
+def forest1_logging(logging_speed):
+    current = 0
+    forest1_logging_image = [pygame.image.load("logger_working1.png"),
+                            pygame.image.load("logger_working2.png"),
+                            pygame.image.load("logger_working3.png"),]
+    if logging_speed > 0:
+        global forest1_current
+        forest1_current =forest1_current + logging_speed/5.0
+        if forest1_current >= len(forest1_logging_image):
+            forest1_current = 0
+        screen.blit(forest1_logging_image[int(forest1_current)],(405, 207))    
+    else:
+        screen.blit(pygame.image.load("forest.png"),(405, 207))
+
+#背景圖片顯示副程式
+def image_display():
+    #道路顯示
+    screen.blit(Road_image, (81 + 81 + 243, 72 + 27))  #道路1
+    screen.blit(Road_image, (81 + 81 + 162, 72 + 27 + 108 + 135))  #道路2
+    screen.blit(Road_image, (81 + 81 + 243, 72 + 27 + 108 + 135 + 108 + 135))  #道路3
+
+    #森林顯示
+    screen.blit(Forest_image, (81 + 81 + 243, 72 + 27 + 108))
+    screen.blit(Forest_image, (81 + 81 + 243, 72 + 27 + 108 + 135 + 108))
+
+    #房子顯示
+    screen.blit(House_image, (81 + 81, 72 + 243))
+
+    #空豬圈顯示
+    screen.blit(Pigsty_image, (81 + 81, 72))
+    screen.blit(Pigsty_image, (81 + 81, 72 + 243 + 162))
+
+    #資源顯示
+    #肉
+    screen.blit(meat_resource_image,(9,9))
+    screen.blit(meat_resource_text,(9+54+2,9))
+
+    #木頭
+    screen.blit(wood_resource_image,((81 + 81 + 243)/2,9))
+    screen.blit(wood_resource_text,(((81 + 81 + 243)/2)+55+2,9))
+    
+    screen.blit(hp_value_image[hp_value-1],(410+350,9))#經驗值
+    screen.blit(ex_value_image[ex_value],(410,9))#HP值
+
+    #選單按鈕顯示
+    #獵人
+    screen.blit(HunterButton_image, (0, 72))
+    
+    #伐木工
+    screen.blit(LoggerButton_image, (81, 72))
+
+    #魔法塔
+    screen.blit(TowerButton_image, (0,170))
+
+#創建 Player 玩家角色
+player = Player(350,road_y[1],action="stand")
+player_road_y = 1 #計算所處道路位置
+click_last_time = time.time()#player操作間隔時間計算
+player_last_attacked_time = 0
+
+#創建 tower 角色
+towers = []
+Tower_num = 0 #tower數量計算
+
+#創建Slime類別清單
+slimes = []
+slimes.append(Slime(1280-108, road_y[random.randint(0, 2)], action="run"))#初始第一隻slime
+slime_last_call = time.time() #召喚間隔時間
+
+#創建Dragon類別清單
+dragons = []
+dragons.append(Dragon(1280-100,road_y[random.randint(0, 2)],action="run"))#初始第一隻dragon
+dragons[len(dragons)-1].last_attack_time = time.time() #攻擊間隔時間
+dragon_last_call = time.time() #召喚間隔時間
+
+running = True #遊戲循環
+clock = pygame.time.Clock()#幀數計算
+
+ex_value = 0
+hp_value = len(hp_value_image)
+hp_regenneration = 0
+waiting_for_start = True
+#主程式
+if __name__ == "__main__":
+    while waiting_for_start:
+        screen.fill((0,0,0))
+        screen.blit(game_start_text,(1280/2-450,720/2-100))
+        pygame.display.flip()  # 畫面更新
+        for event in pygame.event.get():#pygame事件輸入
+            if event.type == QUIT: 
+                waiting_for_start = False
+                running = False#遊戲結束
+            #滑鼠點擊事件
+            elif event.type == MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if game_start_text_rect.collidepoint(mouse_pos):
+                    time.sleep(0.3)
+                    waiting_for_start = False
+                #各項按鈕事件
+
+    #遊戲開始
+    while running:
+        image_display()
+        forest1_logging(logging_level)
+        pigsty1_hunting(hunting_level)
+        
+        for event in pygame.event.get():#pygame事件輸入
+            if event.type == QUIT: 
+                running = False#遊戲結束
+            #滑鼠點擊事件
+            elif event.type == MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                #各項按鈕事件
+                if TowerButton_image_rect.collidepoint(mouse_pos):#Tower
+                    towers.append(Tower(350,road_y[1],action="standing"))
+                    towers[len(towers)-1].last_attack_time = time.time()
+                    print("tower button clicked")
+                if HunterButton_image_rect.collidepoint(mouse_pos):#Hunter
+                    hunting_level += 1
+                    print("hunter button clicked")
+                if LoggerButton_image_rect.collidepoint(mouse_pos):#Logger
+                    logging_level += 1
+                    print("logger button clicked")
+        
+        #player事件處理
+        if hp_value <10:
+            if (time.time()-hp_regenneration) >3:
+                hp_value += 1
+                hp_regenneration = time.time()
+        if hp_value < 1:
+            running = False    
+        if player is player:
+            keys = pygame.key.get_pressed()#鍵盤讀取
+            if keys[pygame.K_UP]:
+                if (time.time() - click_last_time) > 0.2: #間隔時間0.2秒
+                    player_road_y -= 1
+                    player.y = road_y[player_road_y%3]
+                    click_last_time = time.time()
+            elif keys[pygame.K_DOWN]:
+                if (time.time() - click_last_time) > 0.2: #間隔時間0.2秒
+                    player_road_y += 1
+                    player.y = road_y[player_road_y%3]
+                    click_last_time = time.time()
+            elif keys[pygame.K_RIGHT]:
+                if (time.time() - click_last_time) > 0.2: #間隔時間0.2秒
+                    player.action = "run"
+                    player.x += 70
+                    click_last_time = time.time()
+            elif keys[pygame.K_LEFT]:
+                if (time.time() - click_last_time) > 0.2: #間隔時間0.2秒
+                    player.action = "run"
+                    player.x -= 70
+                    click_last_time = time.time()
+            elif keys[pygame.K_SPACE]:
+                if (time.time() - click_last_time) > 0.2: #間隔時間0.2秒
+                    player.action = "attack"
+                    click_last_time = time.time()
+            else:
+                player.action = "stand" #無任何事件時 動作為"stand"
+            
+            player.update()
+            player.draw(screen)
+            clock.tick(60)
+
+        #所有Slime事件處理
+        for slime in slimes:
+            # 每 5 秒生成一個新的 Slime
+            if len(slimes) < 5: #史萊姆最大數量5
+                if (time.time() - slime_last_call) > 3: #間隔時間5秒
+                    slimes.append(Slime(1280-100, road_y[random.randint(0, 2)], action="run")) #生成slime到slimes
+                    slime_last_call = time.time()  # 更新最後生成時間
+            
+            if len(slimes) > 0: #如果有slime
+                # 出界消失
+                if slime.x < (400): 
+                   slimes.remove(slime)
+                # 被攻擊消失
+                if (slime.y == player.y) and (slime.x < player.x+70) and (slime.x > player.x-10) and player.action == "attack":
+                    slimes.remove(slime)
+                    if ex_value < len(ex_value_image)-1:
+                        ex_value += 1
+                    if len(slimes) == 0:
+                        slimes.append(Slime(1280-100,road_y[random.randint(0, 2)],action="run"))
+                # 攻擊player
+                if (slime.y == player.y) and (slime.x < player.x+70) and (slime.x > player.x-10) and player.action != "attack":
+                    slime.action = "attack"
+                    if(time.time() - player_last_attacked_time)>0.5 :
+                        player_last_attacked_time = time.time()
+                        hp_value -= 1
+                else:
+                    slime.action = "run"
+                    slime.x -= 1  # Slime 往左移動
+
+            slime.update()  # 更新 Slime 的動畫
+            slime.draw(screen)  # 繪製 Slime
+
+        #所有Dragon事件處理
+        for dragon in dragons:
+            # 每 5 秒生成一個新的 Dragon
+            if len(dragons) < 2: #Dragon最大數量2
+                if (time.time() - dragon_last_call) > 5: #間隔時間5秒
+                    dragons.append(Dragon(1280-100, road_y[random.randint(0, 2)], action="run")) #生成dragon到dragons
+                    dragons[len(dragons)-1].last_attack_time = time.time()
+                    dragon_last_call = time.time()  # 更新最後生成時間
+            
+            if len(dragons) > 0: #如果有dragon
+                # 出界消失
+                if dragon.x < (100): 
+                   dragons.remove(dragon)
+                # 被攻擊消失
+                if (dragon.y == player.y) and (dragon.x+80  < player.x) and (dragon.x+200 > player.x) and player.action == "attack":
+                    dragons.remove(dragon)
+                    ex_value += 1
+                    if len(dragons) == 0:
+                        dragons.append(Slime(1280-100,road_y[random.randint(0, 2)],action="run"))
+                        dragons[len(dragons)-1].last_attack_time = time.time()
+            # 攻擊player
+            if ((time.time() - dragon.last_attack_time) > 5):
+                dragon.action = "attack"
+                if ((time.time()-dragon.last_attack_time) >7):
+                    dragon.last_attack_time = time.time()
+                if (player.y == dragon.y) and (player.x+80 > dragon.x) and (dragon.x+300 > player.x):
+                    if (time.time()-player_last_attacked_time) >0.5:
+                        hp_value -= 1
+                        player_last_attacked_time = time.time()
+            # 沒有任何條件 往前跑
+            else:
+                dragon.action = "run"
+                dragon.x -= 1
+            dragon.update()  # 更新 Slime 的動畫
+            dragon.draw(screen)  # 繪製 Slime
+
+        #所有Tower事件處理
+        for tower in towers:
+            for slime in slimes:
+                # 攻擊slime
+                if (tower.y == slime.y):
+                    #if ((time.time() - tower.last_attack_time) >3):
+                    print("tower attack")
+                    tower.action = "attack"
+                    #    if ((time.time() - tower.last_attack_time) >5):
+                    #        tower.last_attack_time = time.time()
+                else:
+                    print("tower standing")
+                    tower.action = "standing"
+            tower.update()
+            tower.draw(screen)
+        
+        pygame.display.flip()  # 畫面更新
+        clock.tick(60)  # 設定每秒 60 幀
+        screen.fill((0,0,0))#畫面清空
+        #=====主迴圈最後一行=====#
+    
+    # 結束 Pygame
+    screen.fill((0,0,0))
+    screen.blit(game_over_text,(1280/2-450,720/2-100))
+    pygame.display.flip()  # 畫面更新
+    time.sleep(3)
+    pygame.quit()
+
+

@@ -314,4 +314,10 @@ def stage6(player):
             enemies.clear()
             stage_start = False
             return "stage6_finish" #結束Stage
-        
+
+#第七關內容 每次生成n隻Dragon、Slime 任務目標：共擊敗15隻
+#第七關Dragon、Slime都有會攻擊動作
+#第七關開始會有pigsty機制
+
+def stage7(player):
+    pass
