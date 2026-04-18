@@ -274,12 +274,23 @@ def stage6(player):
                 if enemy.x < 100 or not enemy.alive: #移除出界的敵人或死亡的敵人
                     enemies.remove(enemy)
                     continue
-   
-                if (enemy.y == player.y) and (enemy.x+80  < player.x) and (enemy.x+200 > player.x) and player.action == "attack":
+                
+                # 判斷敵人種類，以區分受擊與攻擊範圍
+                is_dragon = type(enemy) is Dragon
+                
+                dragon_hitbox = is_dragon and (enemy.x+80 < player.x) and (enemy.x+200 > player.x)
+                slime_hitbox = (not is_dragon) and (enemy.x < player.x+70) and (enemy.x > player.x-10)
+
+                # 1. 玩家攻擊判定 (將 Dragon 與 Slime 的受擊邏輯合併)
+                if (enemy.y == player.y) and (dragon_hitbox or slime_hitbox) and player.action == "attack":
                     stage6_score += 1 
                     enemy.alive = False
+                    if not is_dragon:
+                        print("return ex_value_plus") # 保留原本 Slime 特有的 print
                     return "ex_value_plus"
-                elif((time.time() - enemy.last_attack_time) > 5):
+                
+                # 2. 怪物攻擊判定 - Dragon 的攻擊邏輯
+                elif is_dragon and ((time.time() - enemy.last_attack_time) > 5):
                     enemy.action = "attack"
                     if ((time.time()-enemy.last_attack_time) >7):
                         enemy.last_attack_time = time.time()
@@ -287,25 +298,19 @@ def stage6(player):
                         if (time.time()-player_last_hurt_time) >0.5:
                             player_last_hurt_time = time.time()
                             return "hp_value_minus"
-                else: #敵人仍在畫面中
-                    #Slime、Dragon移動
-                    enemy.action = "run"
-                    enemy.x -= 0.5
-                if enemy.y == player.y and enemy.x < player.x+70 and enemy.x > player.x-10:
+
+                # 3. 怪物攻擊判定 - Slime 的攻擊邏輯
+                elif (not is_dragon) and (enemy.y == player.y) and (enemy.x < player.x+70) and (enemy.x > player.x-10):
                     enemy.action = "attack"
-                    if player.action == "attack":
-                        enemy.alive = False
-                        stage6_score += 1
-                        print("return ex_value_plus")
-                        return "ex_value_plus"
-                    else:
-                        if time.time() - player_last_hurt_time > 0.5:
-                            player_last_hurt_time = time.time()
-                            return "hp_value_minus"
-                else: #敵人仍在畫面中
-                    #Slime、Dragon移動
+                    if time.time() - player_last_hurt_time > 0.5:
+                        player_last_hurt_time = time.time()
+                        return "hp_value_minus"
+                
+                # 4. 敵人移動邏輯 (整合原本重複寫兩次的移動程式碼)
+                else: 
                     enemy.action = "run"
                     enemy.x -= 0.5
+                
                 enemy.update()
                 enemy.draw(screen)
 
@@ -313,3 +318,9 @@ def stage6(player):
             enemies.clear()
             stage_start = False
             return "stage6_finish" #結束Stage
+#第七關內容 每次生成n隻Dragon、Slime 任務目標：共擊敗15隻
+#第七關Dragon、Slime都有會攻擊動作
+#第七關開始會有pigsty機制
+
+def stage7(player):
+    pass
