@@ -33,7 +33,6 @@ try:
 
     #資源圖示匯入
     meat_resource_image = pygame.image.load(os.path.join(image_path, "meat_resource_image.png"))#肉
-    wood_resource_image = pygame.image.load(os.path.join(image_path, "wood_resource_image.png"))#木頭
     
     #經驗值圖示匯入
     ex_value_image = [pygame.image.load(os.path.join(image_path, "ex0.png")),
@@ -75,25 +74,20 @@ try:
     #獵人
     HunterButton_image = pygame.image.load(os.path.join(image_path, "hunter_button.png"))
     HunterButton_image_rect = HunterButton_image.get_rect()
-    HunterButton_image_rect.topleft = (0,72)
+    HunterButton_image_rect.topleft = (40,72)
     
-    #伐木工
-    LoggerButton_image = pygame.image.load(os.path.join(image_path, "logger_button.png"))
-    LoggerButton_image_rect = LoggerButton_image.get_rect()
-    LoggerButton_image_rect.topleft = (81,72)
 except Exception as e:
     print(f"error:{e}")
 
 ex_value = 0 #經驗值
 meat_resource = 0 #肉資源
-wood_resource = 0 #木頭資源
 
 # 創建文字圖像
 font = pygame.font.Font(os.path.join(font_path, "Bahnschrift.ttf"), 64)#設定字型和大小（第二個參數是字型大小） None 代表使用 Pygame 預設字型
 print(os.path.join(font_path, "Bahnschrift.ttf"))
 #(文字內容,抗鋸齒效果,顏色)
-meat_resource_text = font.render(f"{meat_resource}", True, (255,255,255))#肉資源文字物件
-wood_resource_text = font.render(f"{wood_resource}", True, (255,255,255))#木頭資源文字物件
+def meat_resource_text(txt) :
+    return font.render(f"{txt}", True, (255,255,255))#肉資源文字物件
 game_over_font = pygame.font.Font(os.path.join(font_path, "Bahnschrift.ttf"), 200)#設定字型和大小
 game_over_text = game_over_font.render(f"game over",True,(255,255,255))#遊戲結束文字物件
 
