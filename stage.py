@@ -274,39 +274,38 @@ def stage6(player):
                 if enemy.x < 100 or not enemy.alive: #移除出界的敵人或死亡的敵人
                     enemies.remove(enemy)
                     continue
-                if isinstance(enemy, Dragon): #Dragon攻擊判定
-                    if (enemy.y == player.y) and (enemy.x+80  < player.x) and (enemy.x+200 > player.x) and player.action == "attack":
-                        stage6_score += 1 
+   
+                if (enemy.y == player.y) and (enemy.x+80  < player.x) and (enemy.x+200 > player.x) and player.action == "attack":
+                    stage6_score += 1 
+                    enemy.alive = False
+                    return "ex_value_plus"
+                elif((time.time() - enemy.last_attack_time) > 5):
+                    enemy.action = "attack"
+                    if ((time.time()-enemy.last_attack_time) >7):
+                        enemy.last_attack_time = time.time()
+                    if (player.y == enemy.y) and (player.x+80 > enemy.x) and (enemy.x+300 > player.x):
+                        if (time.time()-player_last_hurt_time) >0.5:
+                            player_last_hurt_time = time.time()
+                            return "hp_value_minus"
+                else: #敵人仍在畫面中
+                    #Slime、Dragon移動
+                    enemy.action = "run"
+                    enemy.x -= 0.5
+                if enemy.y == player.y and enemy.x < player.x+70 and enemy.x > player.x-10:
+                    enemy.action = "attack"
+                    if player.action == "attack":
                         enemy.alive = False
+                        stage6_score += 1
+                        print("return ex_value_plus")
                         return "ex_value_plus"
-                    elif((time.time() - enemy.last_attack_time) > 5):
-                        enemy.action = "attack"
-                        if ((time.time()-enemy.last_attack_time) >7):
-                            enemy.last_attack_time = time.time()
-                        if (player.y == enemy.y) and (player.x+80 > enemy.x) and (enemy.x+300 > player.x):
-                            if (time.time()-player_last_hurt_time) >0.5:
-                                player_last_hurt_time = time.time()
-                                return "hp_value_minus"
-                    else: #敵人仍在畫面中
-                        #Slime、Dragon移動
-                        enemy.action = "run"
-                        enemy.x -= 0.5
-                elif isinstance(enemy, Slime): #Slime攻擊判定
-                    if enemy.y == player.y and enemy.x < player.x+70 and enemy.x > player.x-10:
-                        enemy.action = "attack"
-                        if player.action == "attack":
-                            enemy.alive = False
-                            stage6_score += 1
-                            print("return ex_value_plus")
-                            return "ex_value_plus"
-                        else:
-                            if time.time() - player_last_hurt_time > 0.5:
-                                player_last_hurt_time = time.time()
-                                return "hp_value_minus"
-                    else: #敵人仍在畫面中
-                        #Slime、Dragon移動
-                        enemy.action = "run"
-                        enemy.x -= 0.5
+                    else:
+                        if time.time() - player_last_hurt_time > 0.5:
+                            player_last_hurt_time = time.time()
+                            return "hp_value_minus"
+                else: #敵人仍在畫面中
+                    #Slime、Dragon移動
+                    enemy.action = "run"
+                    enemy.x -= 0.5
                 enemy.update()
                 enemy.draw(screen)
 
@@ -314,10 +313,3 @@ def stage6(player):
             enemies.clear()
             stage_start = False
             return "stage6_finish" #結束Stage
-
-#第七關內容 每次生成n隻Dragon、Slime 任務目標：共擊敗15隻
-#第七關Dragon、Slime都有會攻擊動作
-#第七關開始會有pigsty機制
-
-def stage7(player):
-    pass

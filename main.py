@@ -56,7 +56,7 @@ def image_display():
     #伐木工
     screen.blit(LoggerButton_image, (81, 72))
 
-stage = 1 #初始關卡等級
+stage = 5 #初始關卡等級
 stage_start = False #預設關卡未開始
 
 #主程式
