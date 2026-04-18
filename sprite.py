@@ -71,12 +71,13 @@ class Player:
         elif keys[pygame.K_RIGHT]: #右
             if (time.time() - self.click_last_time) > 0.2: #間隔時間0.2秒
                 self.action = "run"
-                self.x += 70
+                #self.x += 70
+                self.x = min(self.x+70, 1280-100) #限制玩家不超出右邊界
                 self.click_last_time = time.time()
         elif keys[pygame.K_LEFT]: #左
             if (time.time() - self.click_last_time) > 0.2: #間隔時間0.2秒
                 self.action = "run"
-                self.x -= 70
+                self.x = max(self.x-70, 81+81+243) #限制玩家不超出左邊界
                 self.click_last_time = time.time()
         elif keys[pygame.K_SPACE]: #空格 攻擊
             if (time.time() - self.click_last_time) > 0.2: #間隔時間0.2秒
@@ -165,4 +166,34 @@ class Dragon:
 
     def draw(self, surface):
         # 將 Slime 畫在指定的位置上
+        surface.blit(self.image, (self.x, self.y))
+
+class Pigsty:
+    def __init__(self, x, y,level,action):
+        self.x = x
+        self.y = y
+        self.level = level
+        self.action = action
+        self.work_images = [pygame.image.load(os.path.join(folder_path+"\\assets\\image\\", "pigsty_work1.png")),
+                            pygame.image.load(os.path.join(folder_path+"\\assets\\image\\", "pigsty_work2.png")),
+                            pygame.image.load(os.path.join(folder_path+"\\assets\\image\\", "pigsty_work3.png")),
+                            pygame.image.load(os.path.join(folder_path+"\\assets\\image\\", "pigsty_work4.png")),
+                            pygame.image.load(os.path.join(folder_path+"\\assets\\image\\", "pigsty_work5.png")),
+                            pygame.image.load(os.path.join(folder_path+"\\assets\\image\\", "pigsty_work6.png")),
+                            pygame.image.load(os.path.join(folder_path+"\\assets\\image\\", "pigsty_work7.png")),
+                            pygame.image.load(os.path.join(folder_path+"\\assets\\image\\", "pigsty_work8.png")),
+                            pygame.image.load(os.path.join(folder_path+"\\assets\\image\\", "pigsty_work9.png")),
+                            pygame.image.load(os.path.join(folder_path+"\\assets\\image\\", "pigsty_work10.png"))]
+        self.current_image = 0
+        self.animation_speed =  0.1  # 工作動畫速度 隨等級增加而增加
+        self.image = self.work_images[self.current_image]
+    def update(self):
+        if self.action == "work":
+            self.current_image += self.animation_speed * self.level #等級越高動畫更新越快
+            if self.current_image >= len(self.work_images):
+                self.current_image = 0
+            self.image = self.work_images[int(self.current_image)]
+        else:
+            self.image = pygame.image.load(os.path.join(folder_path+"\\assets\\image\\", "pigsty.png"))
+    def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))
