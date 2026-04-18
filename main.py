@@ -8,8 +8,14 @@ from stage import * #關卡函式
 
 pygame.init()  #初始化pygame
 
-player = Player(350,road_y[1],len(hp_value_image),action="stand") #玩家角色物件
+player = Player(81+81+243,road_y[1],len(hp_value_image),action="stand") #玩家角色物件
 hp_regenneration = time.time() #hp再生計算
+
+pigsty1 = Pigsty(81+81,72,0,"not_work") #豬圈1物件
+pigsty2 = Pigsty(81+81,72+243+162,0,"not_work") #豬圈2物件
+
+#資源數量
+meat_resource = 0 #肉
 
 running = True #遊戲運行狀態
 clock = pygame.time.Clock()#幀數計算
@@ -30,9 +36,11 @@ def image_display():
     screen.blit(Forest_image, (81 + 81 + 243, 72 + 27 + 108-25))
     screen.blit(Forest_image, (81 + 81 + 243, 72 + 27 + 108 + 135 + 108-25))
 
-    #空豬圈顯示
-    screen.blit(Pigsty_image, (81 + 81, 72))
-    screen.blit(Pigsty_image, (81 + 81, 72 + 243 + 162))
+    #豬圈顯示
+    pigsty1.update()
+    pigsty1.draw(screen)
+    pigsty2.update()
+    pigsty2.draw(screen)
 
     #房子顯示
     screen.blit(House_image, (81 + 81+5, 72 + 243-20))
@@ -40,23 +48,16 @@ def image_display():
     #資源顯示
     #肉
     screen.blit(meat_resource_image,(9,9))
-    screen.blit(meat_resource_text,(9+54+2,9))
-
-    #木頭
-    screen.blit(wood_resource_image,((81 + 81 + 243)/2,9))
-    screen.blit(wood_resource_text,(((81 + 81 + 243)/2)+55+2,9))
+    screen.blit(meat_resource_text(int(meat_resource)),(9+54+2,9))
     
     screen.blit(hp_value_image[player.hp-1],(410+350,9))#經驗值
     screen.blit(ex_value_image[player.ex_value],(410,9))#HP值
 
     #選單按鈕顯示
     #獵人
-    screen.blit(HunterButton_image, (0, 72))
-    
-    #伐木工
-    screen.blit(LoggerButton_image, (81, 72))
+    screen.blit(HunterButton_image, (40, 72))
 
-stage = 5 #初始關卡等級
+stage = 1 #初始關卡等級
 stage_start = False #預設關卡未開始
 
 #主程式
@@ -69,11 +70,27 @@ if __name__ == "__main__":
                 running = False#遊戲結束
             #滑鼠點擊事件
             elif event.type == MOUSEBUTTONDOWN:
-                mouse_pos = event.pos
-                
-                
+                mouse_pos = event.pos         
                 if HunterButton_image_rect.collidepoint(mouse_pos): #點擊獵人按鈕
-                    print("hunter button clicked")
+                    if player.ex_value >= 5: #如果經驗值足夠
+                        if pigsty1.action == "not_work": #如果豬圈1沒在工作
+                            player.ex_value -= 5 #扣除經驗值
+                            pigsty1.action = "work" #豬圈1開始工作
+                            pigsty1.level += 1 #豬圈1等級提升
+                            print("Hunter Button Clicked, Pigsty1 launch, Level:", pigsty1.level)
+                        else: #如果豬圈1已經在工作
+                            if pigsty2.action == "not_work": #如果豬圈2沒在工作
+                                player.ex_value -= 5 #扣除經驗值
+                                pigsty2.action = "work" #豬圈2開始工作
+                                pigsty2.level += 1 #豬圈2等級提升
+                                print("Hunter Button Clicked, Pigsty2 launch, Level:", pigsty2.level)
+                            else: #如果豬圈2也在工作
+                                pigsty1.level += 1 #豬圈1等級提升
+                                pigsty2.level += 1 #豬圈2等級提升
+                                print("Hunter Button Clicked, Both Pigsty level up, Pigsty1 Level:", pigsty1.level, "Pigsty2 Level:", pigsty2.level)
+
+                    else:
+                        print("Hunter Button Clicked, but not enough experience!")
 
         image_display()#背景圖片顯示
 
@@ -83,12 +100,15 @@ if __name__ == "__main__":
             player.hp += 1
             hp_regenneration = time.time() 
 
+        meat_resource += 0.1*pigsty1.level + 0.1*pigsty2.level
+
         match stage: #關卡判斷
             case 1: #第一關
                 stage_result = stage1(player)
                 if stage_result == "stage1_finish":stage += 1 #結束第一關
                 elif stage_result == "ex_value_plus": #增加經驗值
                     player.ex_value = min(player.ex_value + 1, len(ex_value_image)-1)
+                    print("ex_value:",player.ex_value)
             case 2: #第二關
                 stage_result = stage2(player)
                 if stage_result == "stage2_finish":stage += 1 #結束第二關
